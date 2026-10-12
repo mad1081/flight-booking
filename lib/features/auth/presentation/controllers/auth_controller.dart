@@ -1,12 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/repositories/local_auth_repository.dart';
+import '../../data/repositories/supabase_auth_repository.dart';
 import '../../domain/models/app_user.dart';
 import '../../domain/repositories/auth_repository.dart';
 
+import 'package:qanat/core/config/app_environment.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthException;
+
 final authStoreProvider = Provider<AuthStore>((ref) => PreferencesAuthStore());
 final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => LocalAuthRepository(ref.watch(authStoreProvider)),
+  (ref) => AppEnvironment.isConfigured
+      ? SupabaseAuthRepository(Supabase.instance.client)
+      : LocalAuthRepository(ref.watch(authStoreProvider)),
 );
 final authControllerProvider = AsyncNotifierProvider<AuthController, AppUser?>(
   AuthController.new,
@@ -36,12 +42,13 @@ class AuthController extends AsyncNotifier<AppUser?> {
     return !state.hasError;
   }
 
-  Future<void> signOut() async {
+  Future<bool> signOut() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _repository.signOut();
       return null;
     });
+    return !state.hasError;
   }
 
   void continueAsGuest() => state = const AsyncData(null);

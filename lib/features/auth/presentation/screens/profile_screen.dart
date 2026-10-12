@@ -147,8 +147,11 @@ class _AuthenticatedProfile extends ConsumerWidget {
       const SizedBox(height: AppSpacing.lg),
       OutlinedButton.icon(
         onPressed: () async {
-          await ref.read(authControllerProvider.notifier).signOut();
-          if (context.mounted) context.go(AppRoutes.explore);
+          final router = GoRouter.of(context);
+          final signedOut = await ref
+              .read(authControllerProvider.notifier)
+              .signOut();
+          if (signedOut) router.go(AppRoutes.login);
         },
         icon: const Icon(Icons.logout_rounded),
         label: const Text('Аккаунттан шығу'),

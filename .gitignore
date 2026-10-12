@@ -37,13 +37,24 @@ migrate_working_dir/
 
 # Local screenshots, secrets, and signing material
 /*.png
+/Screenshots_TMP/
 .env
 .env.*
+!/backend/.env.example
 *.keystore
 *.jks
 *.p12
 *.p8
 key.properties
+
+# Local API configuration and Python environment
+/backend/.env
+/backend/.venv/
+/backend/**/__pycache__/
+/backend/.pytest_cache/
+/config/local.json
+/config/emulator.json
+
 
 # Symbolication related
 app.*.symbols

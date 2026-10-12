@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qanat/app/router/app_router.dart';
+import 'package:qanat/core/config/app_environment.dart';
 import 'package:qanat/core/design_system/design_system.dart';
+import 'package:qanat/core/network/api_client_provider.dart';
 import 'package:qanat/features/bookings/domain/booking_models.dart';
 import 'package:qanat/features/flights/domain/flight_models.dart';
 
-class SeatSelectionScreen extends StatefulWidget {
+class SeatSelectionScreen extends ConsumerStatefulWidget {
   const SeatSelectionScreen({required this.offer, super.key});
   final FlightOffer offer;
 
   @override
-  State<SeatSelectionScreen> createState() => _SeatSelectionScreenState();
+  ConsumerState<SeatSelectionScreen> createState() =>
+      _SeatSelectionScreenState();
 }
 
-class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
-  static const _occupied = {
+class _SeatSelectionScreenState extends ConsumerState<SeatSelectionScreen> {
+  static const _mockOccupied = {
     '1A',
     '1F',
     '2C',
@@ -25,7 +29,48 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
     '6C',
     '7F',
   };
+  Set<String> _occupied = _mockOccupied;
+  bool _loading = false;
+  bool _loadFailed = false;
   Seat? _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    if (AppEnvironment.isConfigured) {
+      _occupied = {};
+      _loadSeats();
+    }
+  }
+
+  Future<void> _loadSeats() async {
+    setState(() {
+      _loading = true;
+      _loadFailed = false;
+    });
+    try {
+      final result = await ref
+          .read(apiClientProvider)
+          .get(
+            '/api/v1/flights/${Uri.encodeComponent(widget.offer.flight.id)}/occupied-seats',
+          );
+      final occupied = List<String>.from((result as Map)['occupied'] as List);
+      if (!mounted) return;
+      setState(() {
+        _occupied = occupied.toSet();
+        if (_selected != null && _occupied.contains(_selected!.code)) {
+          _selected = null;
+        }
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _loadFailed = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -39,7 +84,7 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
           border: Border(top: BorderSide(color: AppColors.borderSubtle)),
         ),
         child: FilledButton(
-          onPressed: _selected == null
+          onPressed: _selected == null || _loading || _loadFailed
               ? null
               : () => context.push(
                   AppRoutes.passengerDetails,
@@ -61,6 +106,13 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
         AppSpacing.section,
       ),
       children: [
+        if (_loading) const LinearProgressIndicator(),
+        if (_loadFailed)
+          TextButton.icon(
+            onPressed: _loadSeats,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Орындарды жүктей алмадық. Қайта көру'),
+          ),
         Text(
           'Ұшу жайлырақ болсын',
           style: Theme.of(context).textTheme.headlineMedium,
@@ -166,7 +218,7 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
           borderRadius: AppRadii.medium,
           child: InkWell(
             key: ValueKey('seat-$code'),
-            onTap: occupied
+            onTap: occupied || _loading || _loadFailed
                 ? null
                 : () => setState(() {
                     _selected = Seat(

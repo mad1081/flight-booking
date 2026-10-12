@@ -222,7 +222,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: AppSpacing.sm),
           SizedBox(
-            height: 136,
+            height: _destinationCardHeight(context),
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: const [
@@ -280,27 +280,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final selected = await showModalBottomSheet<Airport>(
       context: context,
       builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.page),
-                child: Text(
-                  origin ? 'Ұшу қаласы' : 'Баратын қала',
-                  style: Theme.of(context).textTheme.headlineMedium,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.page),
+                  child: Text(
+                    origin ? 'Ұшу қаласы' : 'Баратын қала',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ),
-              ),
-              for (final airport in airports)
-                ListTile(
-                  leading: CircleAvatar(child: Text(airport.code)),
-                  title: Text(airport.city),
-                  subtitle: Text(airport.name),
-                  onTap: () => Navigator.pop(context, airport),
-                ),
-            ],
+                for (final airport in airports)
+                  ListTile(
+                    leading: CircleAvatar(child: Text(airport.code)),
+                    title: Text(airport.city),
+                    subtitle: Text(airport.name),
+                    onTap: () => Navigator.pop(context, airport),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -353,48 +355,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setSheetState) => SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.page),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Жолаушылар',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                _PassengerCounter(
-                  label: 'Ересектер',
-                  subtitle: '12 жастан жоғары',
-                  value: adults,
-                  onMinus: adults > 1
-                      ? () => setSheetState(() => adults--)
-                      : null,
-                  onPlus: adults + children < 9
-                      ? () => setSheetState(() => adults++)
-                      : null,
-                ),
-                _PassengerCounter(
-                  label: 'Балалар',
-                  subtitle: '2–11 жас',
-                  value: children,
-                  onMinus: children > 0
-                      ? () => setSheetState(() => children--)
-                      : null,
-                  onPlus: adults + children < 9
-                      ? () => setSheetState(() => children++)
-                      : null,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                FilledButton(
-                  onPressed: () => Navigator.pop(
-                    context,
-                    PassengerCounts(adults: adults, children: children),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.page),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Жолаушылар',
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  child: const Text('Дайын'),
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.lg),
+                  _PassengerCounter(
+                    label: 'Ересектер',
+                    subtitle: '12 жастан жоғары',
+                    value: adults,
+                    onMinus: adults > 1
+                        ? () => setSheetState(() => adults--)
+                        : null,
+                    onPlus: adults + children < 9
+                        ? () => setSheetState(() => adults++)
+                        : null,
+                  ),
+                  _PassengerCounter(
+                    label: 'Балалар',
+                    subtitle: '2–11 жас',
+                    value: children,
+                    onMinus: children > 0
+                        ? () => setSheetState(() => children--)
+                        : null,
+                    onPlus: adults + children < 9
+                        ? () => setSheetState(() => children++)
+                        : null,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(
+                      context,
+                      PassengerCounts(adults: adults, children: children),
+                    ),
+                    child: const Text('Дайын'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -541,6 +545,12 @@ class _DestinationCard extends StatelessWidget {
       ],
     ),
   );
+}
+
+double _destinationCardHeight(BuildContext context) {
+  const baseHeight = 136.0;
+  final textScale = MediaQuery.textScalerOf(context).scale(20) / 20;
+  return baseHeight + (textScale - 1).clamp(0, 2) * 280;
 }
 
 String _airportLabel(Airport? airport) =>

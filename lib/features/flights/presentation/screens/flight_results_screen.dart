@@ -368,13 +368,17 @@ class _FlightCard extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                   const SizedBox(width: AppSpacing.xs),
-                  Text(
-                    offer.hasCheckedBaggage
-                        ? '${offer.checkedBaggageKg} кг багаж'
-                        : '${offer.cabinBaggageKg} кг қол жүгі',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  Expanded(
+                    child: Text(
+                      offer.hasCheckedBaggage
+                          ? '${offer.checkedBaggageKg} кг багаж'
+                          : '${offer.cabinBaggageKg} кг қол жүгі',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: AppSpacing.xs),
                   Text(
                     _price(offer.priceKzt),
                     style: Theme.of(context).textTheme.titleLarge,

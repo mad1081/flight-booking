@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/validators/auth_validators.dart';
+import '../../domain/repositories/auth_repository.dart';
 import '../controllers/auth_controller.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -130,7 +131,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       const SizedBox(height: 16),
                       Text(
                         authErrorMessage(auth.error!),
-                        style: TextStyle(color: colors.error),
+                        style: TextStyle(
+                          color:
+                              auth.error is EmailConfirmationRequiredException
+                              ? colors.primary
+                              : colors.error,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 24),

@@ -185,23 +185,26 @@ class _FlightDetailsScreenState extends ConsumerState<FlightDetailsScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-              SwitchListTile.adaptive(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Бағаны бақылау'),
-                subtitle: const Text('Баға өзгергенде хабарлау'),
-                value: _trackingPrice,
-                onChanged: (value) {
-                  setState(() => _trackingPrice = value);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        value
-                            ? 'Бағаны бақылау қосылды'
-                            : 'Бағаны бақылау өшірілді',
+              Material(
+                type: MaterialType.transparency,
+                child: SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Бағаны бақылау'),
+                  subtitle: const Text('Баға өзгергенде хабарлау'),
+                  value: _trackingPrice,
+                  onChanged: (value) {
+                    setState(() => _trackingPrice = value);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          value
+                              ? 'Бағаны бақылау қосылды'
+                              : 'Бағаны бақылау өшірілді',
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ],
           ),

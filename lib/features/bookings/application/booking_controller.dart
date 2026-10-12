@@ -1,12 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qanat/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:qanat/core/config/app_environment.dart';
+import 'package:qanat/core/network/api_client_provider.dart';
 
+import '../data/api_booking_repository.dart';
 import '../data/local_booking_repository.dart';
 import '../domain/booking_models.dart';
 import '../domain/booking_repository.dart';
 
 final bookingRepositoryProvider = Provider<BookingRepository>(
-  (ref) => LocalBookingRepository(),
+  (ref) => AppEnvironment.isConfigured
+      ? ApiBookingRepository(ref.watch(apiClientProvider))
+      : LocalBookingRepository(),
 );
 
 final bookingsProvider =
@@ -24,31 +29,10 @@ class BookingsController extends AsyncNotifier<List<Booking>> {
 
   Future<Booking> confirm(BookingDraft draft) async {
     final user = await ref.read(authControllerProvider.future);
-    final passenger = draft.passenger;
     if (user == null) throw StateError('Login is required to book a flight.');
-    if (passenger == null) throw StateError('Passenger details are required.');
-    final offer = draft.offer;
-    final flight = offer.flight;
-    final now = DateTime.now();
-    final booking = Booking(
-      id: 'QN${now.microsecondsSinceEpoch.toRadixString(36).toUpperCase()}',
-      userId: user.id,
-      passengerName: passenger.fullName,
-      seatCode: draft.seat.code,
-      originCode: flight.origin.code,
-      destinationCode: flight.destination.code,
-      originCity: flight.origin.city,
-      destinationCity: flight.destination.city,
-      airlineName: flight.airline.name,
-      flightNumber: flight.flightNumber,
-      departureAt: flight.departureAt,
-      arrivalAt: flight.arrivalAt,
-      fareName: offer.fareName,
-      baggageKg: offer.checkedBaggageKg,
-      totalKzt: draft.totalKzt,
-      createdAt: now,
-    );
-    await ref.read(bookingRepositoryProvider).save(booking);
+    final booking = await ref
+        .read(bookingRepositoryProvider)
+        .confirm(draft, user.id);
     ref.invalidateSelf();
     return booking;
   }

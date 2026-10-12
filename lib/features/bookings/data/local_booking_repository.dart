@@ -19,7 +19,6 @@ class LocalBookingRepository implements BookingRepository {
       ..sort((a, b) => a.departureAt.compareTo(b.departureAt));
   }
 
-  @override
   Future<void> save(Booking booking) async {
     final preferences = await _preferences;
     final all = await _readAll();
@@ -29,6 +28,35 @@ class LocalBookingRepository implements BookingRepository {
       _storageKey,
       all.map((value) => jsonEncode(value.toJson())).toList(),
     );
+  }
+
+  @override
+  Future<Booking> confirm(BookingDraft draft, String userId) async {
+    final passenger = draft.passenger;
+    if (passenger == null) throw StateError('Passenger details are required.');
+    final offer = draft.offer;
+    final flight = offer.flight;
+    final now = DateTime.now();
+    final booking = Booking(
+      id: 'QN${now.microsecondsSinceEpoch.toRadixString(36).toUpperCase()}',
+      userId: userId,
+      passengerName: passenger.fullName,
+      seatCode: draft.seat.code,
+      originCode: flight.origin.code,
+      destinationCode: flight.destination.code,
+      originCity: flight.origin.city,
+      destinationCity: flight.destination.city,
+      airlineName: flight.airline.name,
+      flightNumber: flight.flightNumber,
+      departureAt: flight.departureAt,
+      arrivalAt: flight.arrivalAt,
+      fareName: offer.fareName,
+      baggageKg: offer.checkedBaggageKg,
+      totalKzt: draft.totalKzt,
+      createdAt: now,
+    );
+    await save(booking);
+    return booking;
   }
 
   Future<List<Booking>> _readAll() async {

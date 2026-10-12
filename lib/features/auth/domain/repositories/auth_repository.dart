@@ -24,3 +24,13 @@ final class EmailAlreadyUsedException extends AuthException {
   const EmailAlreadyUsedException()
     : super('Бұл email мекенжайымен аккаунт бұрын тіркелген.');
 }
+
+final class EmailConfirmationRequiredException extends AuthException {
+  const EmailConfirmationRequiredException()
+    : super('Аккаунт құрылды. Email хаты арқылы мекенжайыңызды растаңыз, содан кейін кіріңіз.');
+}
+
+final class AuthServiceException extends AuthException {
+  const AuthServiceException()
+    : super('Қазір аккаунт қызметіне қосыла алмадық. Кейінірек қайталаңыз.');
+}

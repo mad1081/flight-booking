@@ -1,12 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qanat/core/config/app_environment.dart';
+import 'package:qanat/core/network/api_client_provider.dart';
 
+import '../data/api_flight_repository.dart';
 import '../data/mock_flight_repository.dart';
 import '../domain/flight_models.dart';
 import '../domain/flight_offer_ranker.dart';
 import '../domain/flight_repository.dart';
 
 final flightRepositoryProvider = Provider<FlightRepository>(
-  (ref) => MockFlightRepository(),
+  (ref) => AppEnvironment.isConfigured
+      ? ApiFlightRepository(ref.watch(apiClientProvider))
+      : MockFlightRepository(),
 );
 
 final airportsProvider = FutureProvider<List<Airport>>(
