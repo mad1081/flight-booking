@@ -27,17 +27,17 @@ class ApplicationShell extends StatelessWidget {
               NavigationDestination(
                 icon: Icon(Icons.explore_outlined),
                 selectedIcon: Icon(Icons.explore_rounded),
-                label: 'Explore',
+                label: 'Билеттер',
               ),
               NavigationDestination(
                 icon: Icon(Icons.airplane_ticket_outlined),
                 selectedIcon: Icon(Icons.airplane_ticket_rounded),
-                label: 'Trips',
+                label: 'Сапарлар',
               ),
               NavigationDestination(
                 icon: Icon(Icons.person_outline_rounded),
                 selectedIcon: Icon(Icons.person_rounded),
-                label: 'Profile',
+                label: 'Аккаунт',
               ),
             ],
           ),

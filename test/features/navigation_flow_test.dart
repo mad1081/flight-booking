@@ -51,10 +51,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(HomeScreen), findsOneWidget);
 
-    await tester.tap(find.text('Trips'));
+    await tester.tap(find.text('Сапарлар'));
     await tester.pumpAndSettle();
     expect(find.byType(TripsListScreen), findsOneWidget);
-    await tester.tap(find.text('Profile'));
+    await tester.tap(find.text('Аккаунт'));
     await tester.pumpAndSettle();
     expect(find.byType(ProfileScreen), findsOneWidget);
     await tester.tap(find.text('Кіру немесе тіркелу'));
